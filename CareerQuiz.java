@@ -1,338 +1,431 @@
-//This Class stores all the text for questions and answers, calculates academic subject scores, and determines a plan.
+import java.util.Scanner;
 
 public class CareerQuiz {
+    private Question[] questions;
+    private static Question[] specQuestions;   //List of special questions.
+    private static String[] categories;
+    private static String[] specCategories;    //List of special categories.
+    private static int[] scores;
+    private static int[] specScores;
 
-    //These two arrays store the visual text that the user sees.
-    private static String[] questions;
-    private static String[] answers;
-
-    //Specialized question and answer text. This helps categorize all the questions and answers.
-    private static String[] stemQ;
-    private static String[] artQ;
-    private static String[] techQ;
-    private static String[] busQ;
-    private static String[] medQ;
-    private static String[] lawQ;
-    private static String[] socialQ;
-
-    private static String[] stemA;
-    private static String[] artA;
-    private static String[] techA;
-    private static String[] busA;
-    private static String[] medA;
-    private static String[] lawA;
-    private static String[] socialA;
-
-    private static int[] userAnswers;   //Each index here corresponds with the question array's. More info below.
-    /* How to use userAnswers:
-    This array stores a number, called a rank, corresponding to whatever the number answer is for each question. There'll be a method
-    that will check each rank, and then based off of the number rank will increment the appropriate score.
-     */
-
-    //The index of the next open spot in the questions array.
-    private static int openIndex;
-
-    private static int academicScore;  //Overall general score. This indicates college-preparedness.
-    private static int stemScore;  //How STEM inclined the student is.
-    private static int artScore;  //How artistically inclined the student is.
-    private static int technicalScore; //trade school
-    private static int businessScore;
-    private static int medicalScore;
-    private static int lawScore;
-    private static int socialStudiesScore;   //How social studies inclined the student is.
-
-    //Collected user information.
-    private static int userAge;
-    private static float gpa;
-
-
-//The dark below.
-
-
-    public CareerQuiz(boolean isActive) {
-        academicScore = 0;
-        stemScore = 0;
-        artScore = 0;
-        technicalScore = 0;
-        businessScore = 0;
-        medicalScore = 0;
-        lawScore = 0;
-        socialStudiesScore = 0;
+    private static String[] finalChoices;   //Used solely for displaying the plan path.
+    private static String[] idealFields;
+    private static boolean readyForCollege;
 
 
 
-        if (isActive) {
-            addQuestions();
-        }
-        else {
-            System.out.println("pretend you skipped the quiz and are on the website");
-        }
-    }
-
-    public static String getNextQuestion() {
-        if(stemScore > 5 && stemScore < 10) {
-            return questions[7];
-        }
-        if(stemScore > 10 && stemScore < 15) {
-            return "";
-        }
-        if(stemScore >= 15) {
-            return "";
-        }
-
-        if(artScore > 5 && artScore < 10) {
-            return "";
-        }
-        if(artScore > 10) {
-            return "";
-        }
-
-        if(technicalScore > 5 && technicalScore < 10) {
-            return "";
-        }
-        if(technicalScore > 10) {
-            return "";
-        }
-
-        if(businessScore > 5 && businessScore < 10) {
-            return "";
-        }
-        if(businessScore > 10) {
-            return "";
-        }
-
-        if(medicalScore > 5 && medicalScore < 10) {
-            return "";
-        }
-        if(medicalScore > 10) {
-            return "";
-        }
-
-        if(lawScore > 5 && lawScore < 10) {
-            return "";
-        }
-        if(lawScore > 10) {
-            return "";
-        }
-
-        if(socialStudiesScore > 5 && socialStudiesScore < 10) {
-            return "";
-        }
-        if(socialStudiesScore > 10) {
-            return "";
-        }
-
-        return "";
-    }
-
-    //Used to initialize and put basic questions into the questions array. This is the master list of every single question.
-    public static void addQuestions() {
-
-        questions = new String[999];
-        //Basic questions.
-        questions[0] = "What is your age?"; //Will receive a number from user.
-        questions[1] = "What is your current level of education?";
-        questions[2] = "What is your current/most recent GPA?"; //Will receive a number from user.
-        questions[3] = "Estimate your household income.";
-        questions[4] = "Are you planning to attend college or university?";
-        questions[5] = "Which academic area are you most interested in?";
-        questions[6] = "Which of the following best describes your academic achievement in school?";
-        questions[7] = "Which academic area do you succeed most at in school?";
-        questions[8] = "Which of the following careers interests you the most? Choose as many as needed";
-        questions[9] = "";
-
-        //STEM questions.
-        questions[10] = "What activity sounds most appealing to you?";
-        questions[11] = "";
-        questions[12] = "";
-        questions[13] = "";
-
-        //Art questions.
-        questions[14] = "art q";
-        questions[15] = "";
-        questions[16] = "";
-        questions[17] = "";
-
-        //Technical questions
-        questions[18] = "tech q";
-        questions[19] = "";
-        questions[20] = "";
-        questions[21] = "";
-
-        //Business questions
-        questions[22] = "business q";
-        questions[23] = "";
-        questions[24] = "";
-        questions[25] = "";
-
-        //Medical questions
-        questions[26] = "medical q";
-        questions[27] = "";
-        questions[28] = "";
-        questions[29] = "";
-
-        //Law questions
-        questions[30] = "law q";
-        questions[31] = "";
-        questions[32] = "";
-        questions[33] = "";
-
-        //Social studies questions
-        questions[34] = "social q";
-        questions[35] = "";
-        questions[36] = "";
-        questions[37] = "";
+    public CareerQuiz(Question[] questions, String[] categories) {
+        this.questions = questions;
+        this.categories = categories;
+        scores = new int[categories.length];
     }
 
 
 
-    //Collects the answer the user gave.
-    public static void getUserAnswer(int choiceNum){
-        incrementScore(choiceNum);
-    }
-    /*
-    //After the basic questions finish, the next questions that follow will be determined by how the user answered the basic questions.
-    public static void addSpecificQuestions() {
-        if (stemScore >= 5) {
-            System.out.println("stem inclined");
-        }
-        else if(stemScore < 5) {
-            System.out.println("less than 5");
-        }
-        else {
-            System.out.println("you will like gambling.");
-        }
-    }
-    */
+    public static void main(String[] args) {
 
+        //Quiz set up.
+        String[] defaultCategories = {"STEM", "Art", "Technical", "Business", "Medical", "Law", "Social Studies"};
+        Question[] questions = new Question[5]; //the length of this has to be the # of questions
 
-    //if we never end up using these anywhere except in this class, change these three getters to private
-    public static String[] getQArray() {
-        return questions;
-    }
+//these three lines right here are one question each one should follow this format
+        //Q1
+        String[] q1Options = {"Math", "Drawing", "Building things", "Making money", "Treating injury", "Law", "Social"};
+        questions[0] = new Question("Which of these activities do you enjoy the most in school?", q1Options, defaultCategories);
+////////////////////
+        //Q2
+        String[] q2Options = {"Math", "Art", "Technical stuff (welding, woodworking, etc)", "Persuading others",
+                "Helping others", "Reading and analyzing documents and/or literature", "History"};
+        questions[1] = new Question("Which of the following do you excel in?", q2Options, defaultCategories);
+////////////////////
+        //Q3
+        String[] q3Options = {"Help create an Iron Man suit", "Chisel a giant statue", "Help fix a vehicle",
+                "Close a multi-million dollar deal", "Cure patients of cancer", "Solve a huge criminal case",
+                "Help restore a historical site"};
+        questions[2] = new Question("Which of the following projects would you most likely partake in?", q3Options, defaultCategories);
+////////////////////
+        //Q4
+        String[] q4Options = {"Inside a classroom", "Inside a studio", "Outside at a construction site", "Inside an office",
+                "Inside a hospital", "Inside a law firm", "At a significantly historical site"};
+        questions[3] = new Question("Which environment most suits you?", q4Options, defaultCategories);
+////////////////////
+        //Q5
+        float userGPA = 0;     //User will answer with this.
+        questions[4] = new Question("What's your weighted GPA (decimal points are allowed; 4.0 scale)?", userGPA);
+        readyForCollege = isReadyForCollege(questions[4]);
+        if (readyForCollege) {
+            System.out.println("You are ready for college level work"); //testing
+        }
 
-    public static String[] getAnsArray() {
-        return answers;
-    }
+//////////////////////////////////////////////////
+        CareerQuiz firstHalf = new CareerQuiz(questions, defaultCategories);
+        firstHalf.takeQuiz();
+        recommendField();
+//////////////////////////////////////////////////
+        Scanner user = new Scanner(System.in);
+        System.out.println("Please enter the exact characters as displayed in the quotation marks for further questions.");
+        String userChoice = user.nextLine();
+        setSpecialQ(userChoice);
 
-    //saving this for later but it could be scrapped so who knows
-    public static int[] getAnsRank() {
-        return userAnswers;
-    }
+        CareerQuiz secondHalf = new CareerQuiz(specQuestions, specCategories);
+        secondHalf.takeQuiz();
+        recommendCareer();
 
-    //Developer testing tool.
-    public static void setScore(int num, String scoreType) {
-        if (scoreType.equals("Academic")) {
-            academicScore = num;
-        }
-        else if (scoreType.equals("Art")) {
-            artScore = num;
-        }
-        else if (scoreType.equals("Tech")) {
-            technicalScore = num;
-        }
-        else if (scoreType.equals("Business")) {
-            businessScore = num;
-        }
-        else if (scoreType.equals("Medical")) {
-            medicalScore = num;
-        }
-        else if (scoreType.equals("Law")) {
-            lawScore = num;
-        }
-        else if (scoreType.equals("Social")) {
-            socialStudiesScore = num;
-        }
+        recommendPlan();
     }
 
-    /*
-    Format of basic questions:
-    Q: Question goes here.
-    A1: Answer relating to STEM. (Rank 0)
-    A2: Answer relating to art. (Rank 1)
-    A3: Answer relating to tech. (Rank 2)
-    A4: Answer relating to business. (you get the point)
-    A5: Answer relating to medical field.
-    A6: Answer relating to law.
-    A7: Answer relating to social studies.
-     */
-    //Call this method after the set of basic questions is finished, and then after the specialized questions are finished.
-    public static int[] sumScores(boolean isBasic) {
-        if (isBasic){
-            int[] total = new int[7];
-            for (int i = 0; i < 9; i++) {
-                //Indices 0 and 2 are questions that require user input.
-                if (i == 0) {
-                    //will implement later
+
+    public void takeQuiz() {
+        Scanner user = new Scanner(System.in);
+
+        for (Question question : questions) {
+            System.out.println(question.getQuestionText());
+
+            if (question.isCustomAnswer()) {
+                float gpa = user.nextFloat();
+                System.out.println("GPA entered.");
+            }
+            else {
+                String[] options = question.getOptions();
+                String[] questionCategories = question.getCategories();
+
+                //Displays answers for question.
+                int optionNum = 1;
+                for (int i = 0; i < options.length; i++) {
+                    System.out.println(optionNum + ". " + options[i]);
+                    optionNum++;
                 }
-                else if (i == 2) {
-                    //will implement later
-                }
-                else {
-                    incrementScore(userAnswers[i]);
+                System.out.println("Enter the option number");
+
+                int answerIndex = user.nextInt() - 1;
+
+                if (answerIndex >= 0 && answerIndex < options.length) {
+                    String category = questionCategories[answerIndex];
+                    for (int i = 0; i < categories.length; i++) {
+                        if (categories[i].equals(category)) {
+                            scores[i]++;
+                            break;
+                        }
+                    }
+                } else {
+                    System.out.println("Invalid answer");
                 }
             }
-            return total;
+
+        }
+    }
+
+    //Can recommend more than one field if the scores are equal.
+    private static void recommendField() {
+
+        //returns the highest categories if multiple share the highest score; if not returns highest
+        String[] highestCategories = new String[7];
+        int maxScore = 0;
+        for (int i = 0; i < scores.length; i++) {
+            if (scores[i] > maxScore) {
+                maxScore = scores[i];
+            }
+        }
+        int highestFound = 0;
+        for (int i = 0; i < scores.length && highestFound < 7; i++) {
+            if (scores[i] == maxScore) {
+                highestCategories[highestFound] = categories[i];
+                highestFound++;
+            }
+        }
+        for (int i = 0; i < highestFound; i++) {
+            System.out.println("A recommended category for you is " + highestCategories[i]);
+            switch (highestCategories[i]) {
+                case "STEM" -> System.out.println("Info about STEM");
+                case "Art" -> System.out.println("Info about Art");
+                case "Technical" -> System.out.println("Info about technical careers");
+                case "Business" -> System.out.println("Info about business");
+                case "Medical" -> System.out.println("Info about med careers");
+                case "Law" -> System.out.println("Info about law careers");
+                case "Social Studies" -> System.out.println("Info about social studies");
+            }
+        }
+
+
+    }
+
+    private static void recommendCareer() {
+        String[] highestCareers = new String[4]; //4 possible careers within each category
+        int maxScore = 0;
+        for (int i = 0; i < scores.length; i++) {
+            if (scores[i] > maxScore) {
+                maxScore = scores[i];
+            }
+        }
+        int highestFound = 0;
+        for (int i = 0; i < scores.length && highestFound < 7; i++) {
+            if (scores[i] == maxScore) {
+                highestCareers[highestFound] = categories[i];
+                highestFound++;
+            }
+        }
+        finalChoices = new String[4];
+        for(int i = 0; i < highestFound; i++) {
+            System.out.println("A recommended career for you is " + highestCareers[i]);
+            switch (highestCareers[i]) {
+                //STEM careers
+                case "Science" -> finalChoices[i] = "Research scientist"; //Science related
+                case "Technology" -> finalChoices[i] = "Software developer"; //Technology related
+                case "Engineering" -> finalChoices[i] = "Engineer"; //Engineering related
+                case "Math" -> finalChoices[i] = "Data scientist";
+                //Art careers
+                case "Art" -> finalChoices[i] = "Painter"; //Traditional art (drawing, painting, sculpting)
+                case "Digital" -> finalChoices[i] = "Graphic designer"; //Digital art related
+                case "Animation" -> finalChoices[i] = "Pixar Animator"; //Animation related
+                case "Literature" -> finalChoices[i] = "Writer"; //Literature related
+                //Trade careers
+                case "Application" -> finalChoices[i] = "Electrician"; //Useful application related
+                case "Technological" -> finalChoices[i] = "Technician";    //Something that uses technology in their job, but not as advanced as engineer
+                case "Helpful" -> finalChoices[i] = "Carpenter";    //Helpfulness or some job that benefits the community
+                case "Labor" -> finalChoices[i] = "Construction Worker";    //Hard labor related
+                //Business careers
+                case "Communication" -> finalChoices[i] = "Human resources manager";    //Communication related
+                case "Finance" -> finalChoices[i] = "Finance Analyst";    //Finance related
+                case "Advertisement" -> finalChoices[i] = "Marketing manager";    //Advertisement related
+                case "Leadership" -> finalChoices[i] = "Operations manager";    //Leadership related
+                //Medical Careers
+                case "Lifesaver" -> finalChoices[i] = "Emergency Medical Technician (First responder)";    //Lifesaver
+                case "Pharmaceutical" -> finalChoices[i] = "Pharmacist";    //Pharmaceutical related
+                case "Precision" -> finalChoices[i] = "Doctor/surgeon";    //Needs precision to perform their job
+                case "Cool" -> finalChoices[i] = "Nurse";    //Job that requires coolness under pressure
+                //Law careers
+                case "Judgemental" -> finalChoices[i] = "Judge";    //Judgemental related
+                case "Defense" -> finalChoices[i] = "Lawyer";    //Enjoys defending people
+                case "Ethical" -> finalChoices[i] = "Legal Consultant";  //Enjoys talking
+                case "Enforcement" -> finalChoices[i] = "Police officer";    //Enforcer of rules
+                //Social Studies Careers
+                case "Analytical" -> finalChoices[i] = "Sociologist"; //Studies human behavior
+                case "Historical" -> finalChoices[i] = "Historian";   //Likes history stuff
+                case "Studious" -> finalChoices[i] = "Anthropologist"; //studies human culture past old stuff
+                case "Earth" -> finalChoices[i] = "Geographer";  //Enjoys Earth's natural features; watches national geographic
+
+                case "my glorious king" -> System.out.println("Alan 'Mander' Kraut");
+
+            }
+        }
+
+        if (finalChoices.length > 1) {
+            System.out.println("The careers recommended for you are:");
+            for (int i = 0; i < finalChoices.length; i++) {
+                System.out.println((i + 1) + ". " + finalChoices[i]);
+            }
         }
         else {
-            int[] total = new int[100];
-            return total;
+            System.out.println("The career recommended for you is:\n1. " + finalChoices[0]);
         }
     }
 
-    //we will determine score weighting later
-    private static void incrementScore(int rank) {
-        if (rank == 0) {
-            academicScore++;
-            //stemScore++;
+    //Not finished. Should be placed in a loop so the user can see all available paths.
+    private static void recommendPlan() {
+        System.out.println("Based on how you took the quiz, this is the plan you should have: ");
+        if (readyForCollege) {
+            System.out.println("1. Graduate high school with a GPA of at least a weighted 3.0.");
+            switch(idealFields[0]){ //idealFields should also be used in a loop
+                case "STEM" -> {
+                    System.out.println("2. Find and attend a college/university.");
+                    System.out.println("3. Look out for and obtain a scholarship/grant.");
+                    System.out.println("4. Obtain an internship and/or a job relating to your major.");
+                }
+                case "Art" -> {
+                    System.out.println("2. Find and attend an art school.");
+                    System.out.println("3. Look out for and obtain a scholarship/grant.");
+                    System.out.println("4. Obtain an internship and/or a job at a studio.");
+                }
+                case "Technology" -> {
+                    System.out.println("2. Find and attend a trade school.");
+                    System.out.println("3. Look out for and obtain a scholarship/grant.");
+                    System.out.println("4. Obtain and internship and/or a job anywhere that is hiring skilled labor.");
+                }
+                case "Business" -> {
+                    System.out.println("2. Find and attend a business school.");
+                    System.out.println("3. Look out for and obtain a scholarship/grant.");
+                    System.out.println("4. Obtain and internship and/or a job at a business. Preferably a leadership role.");
+                }
+                case "Medical" -> {
+                    System.out.println("2. Find and attend a medical school.");
+                    System.out.println("3. Look out for and obtain a scholarship/grant.");
+                    System.out.println("4. Obtain an internship and/or a job at a hospital.");
+                }
+                case "Law" -> {
+                    System.out.println("2. Find and attend a law school.");
+                    System.out.println("3. Look out for and obtain a scholarship/grant.");
+                    System.out.println("4. Obtain and internship and/or a job at a law firm.");
+                }
+                case "Social Studies" -> {
+                    System.out.println("2. Find and attend a college/university.");
+                    System.out.println("3. Look out for and obtain a scholarship/grant.");
+                    System.out.println("4. Obtain and internship and/or a job relating to your major.");
+                }
+
+            }
+
         }
-        else if (rank == 1) {
-            academicScore++;
-            //artScore++;
-        }
-        else if (rank == 2) {
-            academicScore++;
-            //technicalScore++;
-        }
-        else if (rank == 3) {
-            academicScore++;
-            //businessScore++;
-        }
-        else if (rank == 4) {
-            academicScore++;
-            //medicalScore++;
-        }
-        else if (rank == 5) {
-            academicScore++;
-            //lawScore++;
-        }
-        else if (rank == 6) {
-            academicScore++;
-            //socialStudiesScore++;
+        else {
+            switch(idealFields[0]) {
+                case "STEM" -> {
+                    System.out.println("2. Find and attend a community college.");
+                    System.out.println("3. Look out for and obtain a scholarship/grant.");
+                    System.out.println("4. Obtain an internship and/or a job relating to your major.");
+                }
+                case "Art" -> {
+                    System.out.println("2. Find and attend an art school.");
+                    System.out.println("3. Look out for and obtain a scholarship/grant.");
+                    System.out.println("4. Obtain an internship and/or a job at a studio.");
+                }
+                case "Technology" -> {
+                    System.out.println("2. Find and attend a trade school.");
+                    System.out.println("3. Look out for and obtain a scholarship/grant.");
+                    System.out.println("4. Obtain and internship and/or a job anywhere that is hiring skilled labor.");
+                }
+                case "Business" -> {
+                    System.out.println("2. Find and attend a business school.");
+                    System.out.println("3. Look out for and obtain a scholarship/grant.");
+                    System.out.println("4. Obtain and internship and/or a job at a business. Preferably a leadership role.");
+                }
+                case "Medical" -> {
+                    System.out.println("2. Find and attend a medical school.");
+                    System.out.println("3. Look out for and obtain a scholarship/grant.");
+                    System.out.println("4. Obtain an internship and/or a job at a hospital.");
+                }
+                case "Law" -> {
+                    System.out.println("2. Find and attend a law school.");
+                    System.out.println("3. Look out for and obtain a scholarship/grant.");
+                    System.out.println("4. Obtain and internship and/or a job at a law firm.");
+                }
+                case "Social Studies" -> {
+                    System.out.println("2. Find and attend a college/university.");
+                    System.out.println("3. Look out for and obtain a scholarship/grant.");
+                    System.out.println("4. Obtain and internship and/or a job relating to your major.");
+                }
+            }
         }
     }
 
+    //Based on the results of the basic questions, this method will pick and show the specialized questions.
+    //The recommendedCareers array is the array that stores the fields of study that the user received.
+    private static void setSpecialQ(String specializedCategory) {
+        if (specializedCategory.equals("STEM")) {
+            specQuestions = getSTEMQ();
+        }
+        else if (specializedCategory.equals("Art")) {
+            specQuestions = getArtQ();
+        }
+        else if (specializedCategory.equals("Technical")) {
+            specQuestions = getTechQ();
+        }
+        else if (specializedCategory.equals("Business")) {
+            specQuestions = getBusQ();
+        }
+        else if (specializedCategory.equals("Medical")) {
+            specQuestions = getMedQ();
+        }
+        else if (specializedCategory.equals("Law")) {
+            specQuestions = getLawQ();
+        }
+        else if (specializedCategory.equals("Social Studies")) {
+            specQuestions = getSocStudQ();
+        }
+    }
+
+    private static Question[] getSTEMQ() {
+        Question[] stemQ = new Question[1];
+        //Enjoys scientific advancement and labs, creating technology, designing and creating, and applying math skills.
+        String[] stem = {"Science", "Technology", "Engineering", "Math"};
+        specCategories = stem;
+
+        //Q1
+        String[] q1Options = {"I like lab experiments", "I like working with computers",
+                "I like designing and making things", "I like solving equations"};
+        stemQ[0] = new Question("Which of these closely represent you?",q1Options, specCategories);
+
+        return stemQ;
+    }
+
+    private static Question[] getArtQ() {
+        Question[] artQ = new Question[1];
+        //Enjoys traditional art (drawing, painting, sculpting, etc.), digital art, animation/film, and poetry/writing.
+        String[] art = {"Art", "Digital", "Animation", "Literature"};
+        specCategories = art;
+
+        //Q1
+        String[] q1Options = {"I like drawing or painting", "I like drawing digitally",
+                "I like making flip-books", "I like coming up with stories"};
+        artQ[0] = new Question("Which of these closely represent you?", q1Options, specCategories);
+
+        return artQ;
+    }
+
+    private static Question[] getTechQ() {
+        Question[] techQ = new Question[1];
+        //Enjoys applying knowledge, tool/technology use, impacting the community, and intensive labor.
+        String[] tech = {"Application", "Technological", "Helpful", "Labor"};
+        specCategories = tech;
+
+        //Q1
+        String[] q1Options = {"I like applying my knowledge to real life", "I like using technology to aid me",
+                "I like to help others in my community", "I like to perform menial, but rewarding, tasks"};
+        techQ[0] = new Question("Which of these closely represent you?", q1Options, specCategories);
 
 
-    //the question one is for storing the questions which is where we will pull from to display the text for it
-    //the answer one is for displaying the answers
+        return techQ;
+    }
 
-    /* talking area
-
-
-
-    i thought of an idea where we have to arrange all of the answers the same way as in the first answer for every question is like the same subject
-    like for example:
-    1. what is your favorite subject?
-    a. math
-    b. computer science
-    c. physics
-
-    2. what is your favorite thing to do?
-    a. adding numbers
-    b. coding
-    c. b
+    private static Question[] getBusQ() {
+        Question[] busQ = new Question[1];
+        //Enjoys communicating/networking with clients, dealing with money, selling products, and managing a business/people.
+        String[] bus = {"Communication", "Finance", "Advertisement", "Leadership"};
+        specCategories = bus;
+        //Q1
+        String[] q1Options = {"I would like to form a community", "I want to be rich",
+                "I am good at persuading others", "I like to manage people"};
+        busQ[0] = new Question("Which of these closely represent you?", q1Options, specCategories);
 
 
-   */
+        return busQ;
+    }
+
+    private static Question[] getMedQ() {
+        Question[] medQ = new Question[1];
+        //Enjoys saving lives, advancing medicine, performing surgery, and able to handle extreme situations.
+        String[] med = {"Lifesaver", "Pharmaceutical", "Precision", "Cool"};
+        specCategories = med;
+        //Q1
+        String[] q1Options = {"I would aid a disabled person", "I want to innovate in medicine",
+                "I am okay with performing life saving surgery", ""};
+
+
+        return medQ;
+    }
+
+    private static Question[] getLawQ() {
+        Question[] lawQ = new Question[1];
+        String[] law = {"Judgemental", "Defense", "Ethical", "Enforcement"};
+        specCategories = law;
+        //Q1
+        String[] q1Options = {""};
+
+        return lawQ;
+    }
+
+    private static Question[] getSocStudQ() {
+        Question[] socStudQ = new Question[1];
+        String[] socStud = {"Analytical", "Historical", "Studious", "Earth"};
+        specCategories = socStud;
+        //Q1
+        String[] q1Options = {""};
+
+        return socStudQ;
+    }
+
+    //If true, college can be included in the career plan.
+    private static boolean isReadyForCollege(Question q) {
+        float num = q.getNumber();
+        //Weighted GPA
+        return num >= 3.0 && num <= 5.0;  //We need both conditions.
+    }
 }
