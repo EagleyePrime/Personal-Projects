@@ -78,7 +78,6 @@ public class CareerQuiz {
         }
         recommendPlan(); //recommends a plan
     }
-
     //Takes the quiz. Questions and the corresponding answers are shown. It also prompts the user to answer.
     public void takeQuiz() {
         Scanner user = new Scanner(System.in);
@@ -111,9 +110,7 @@ public class CareerQuiz {
             }
         }
     }
-
-
-
+    
     //Can recommend more than one field if the scores are equal.
     private static void recommendField() {
         //returns the highest categories if multiple share the highest score; if not returns highest
@@ -144,7 +141,6 @@ public class CareerQuiz {
                 case "Social Studies" -> System.out.println("Social studies careers involve developing an understanding of human society, behavior, and interactions.");
             }
         }
-
     }
 
     //Careers are recommended based off of how the user scored on previous questions.
