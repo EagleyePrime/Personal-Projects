@@ -8,7 +8,6 @@ public class Question {
         this.questionText = questionText;
         this.options = options;
         this.categories = categories;
-
     }
 
     public String getQuestionText() {
@@ -22,5 +21,4 @@ public class Question {
     public String[] getCategories() {
         return categories;
     }
-
 }
