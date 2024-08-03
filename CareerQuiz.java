@@ -77,7 +77,6 @@ public class CareerQuiz {
             }
         }
         recommendPlan(); //recommends a plan
-        System.out.println("Thank you for taking our quiz!");
     }
 
     //Takes the quiz. Questions and the corresponding answers are shown. It also prompts the user to answer.
@@ -449,6 +448,7 @@ public class CareerQuiz {
 
         return techQ;
     }
+
     private static Question[] getBusQ() {
         Question[] busQ = new Question[3];
         //Enjoys communicating/networking with clients, dealing with money, selling products, and managing a business/people.
@@ -540,4 +540,5 @@ public class CareerQuiz {
     private static boolean isReadyForCollege(float num) {
         return num >= 3.0 && num <= 5.0;
     }
+
 }
